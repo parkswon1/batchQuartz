@@ -1,0 +1,2 @@
+FROM obsidiandynamics/kafdrop
+ENV TZ=Asia/Seoul

@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  oracle:
+    build:
+      context: .                                       # Dockerfile 경로 (필수)
+      dockerfile: ../dockerfile/Dockerfile-oracle      # Dockerfile 이름 (필수)
+    container_name: oracle                            # 컨테이너 이름 (필수)
+    hostname: oracle                                  # 컨테이너의 호스트 이름 (필수)
+    restart: always                                   # 컨테이너 재시작 정책 (필수)
+    ports:                                            # 포트 매핑 (필수)
+      - "1521:1521"                                   # Oracle Listener 포트
+      - "8521:8080"                                   # Oracle Application Express 포트
+    environment:                                      # 환경 변수 설정
+      ORACLE_SID: XE                                  # Oracle SID 설정 (필수)
+      ORACLE_PWD: oracle                              # Oracle SYS/SYSTEM 비밀번호 (필수)
+      ORACLE_USERNAME: system                         # 기본 사용자 이름 (필수)
+      ORACLE_ALLOW_REMOTE: true                       # 원격 연결 허용 여부 (필수)
+      TZ: Asia/Seoul                                  # 시간대 설정 (필수)
+    volumes:                                          # 데이터 보존을 위한 볼륨 설정
+      - oradata:/u01/app/oracle                       # Oracle 데이터 디렉토리 (필수)
+
+volumes:
+  oradata:                                            # Oracle 데이터 볼륨 (필수)

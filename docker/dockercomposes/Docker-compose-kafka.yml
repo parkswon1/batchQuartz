@@ -1,0 +1,88 @@
+version: '3'
+
+services:
+  zookeeper:
+    build:
+      context: ../dockerfiles
+      dockerfile: DockerfileZookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  kafka1:
+    build:
+      context: ../dockerfiles
+      dockerfile: DockerfileKafka
+    container_name: kafka1
+    hostname: kafka1
+    ports:
+      - "9091:9091"
+    volumes:
+      - ../kafka/server1.properties:/etc/kafka/server.properties
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka1:19091,PLAINTEXT_EXTERNAL://localhost:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+    depends_on:
+      - zookeeper
+
+  kafka2:
+    build:
+      context: ../dockerfiles
+      dockerfile: DockerfileKafka
+    container_name: kafka2
+    hostname: kafka2
+    ports:
+      - "9092:9092"
+    volumes:
+      - ../kafka/server2.properties:/etc/kafka/server.properties
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka2:19092,PLAINTEXT_EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+    depends_on:
+      - zookeeper
+
+  kafka3:
+    build:
+      context: ../dockerfiles
+      dockerfile: DockerfileKafka
+    container_name: kafka3
+    hostname: kafka3
+    ports:
+      - "9093:9093"
+    volumes:
+      - ../kafka/server3.properties:/etc/kafka/server.properties
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka3:19093,PLAINTEXT_EXTERNAL://localhost:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 2
+    depends_on:
+      - zookeeper
+
+  kafdrop:
+    build:
+      context: ../dockerfiles
+      dockerfile: DockerfileKafdrop
+    hostname: kafdrop
+    container_name: kafdrop
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKER_CONNECT: "kafka1:19091,kafka2:19092,kafka3:19093"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
